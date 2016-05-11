@@ -1,0 +1,48 @@
+parent.0		= simple.params
+
+pop.subpop.0.size = 30
+generations       = 100
+
+seed.0                                         = 1
+composition-task                               = problem.xml
+composition-taxonomy                           = taxonomy.xml
+composition-services                           = services-output.xml
+#composition-task                              = testTaskSet.xml
+#composition-taxonomy                          = testTaxonomySet.xml
+#composition-services                          = testDataset.xml
+fitness-weight1                                = 0.25
+fitness-weight2                                = 0.25
+fitness-weight3                                = 0.25
+fitness-weight4                                = 0.25
+dynamic-normalisation                          = true
+
+stat.evaluations                               = $eval.stat
+stat.eval-sample-rate                          = 30
+
+pop.subpop.0.species		 = ec.vector.VectorSpecies
+pop.subpop.0.species.ind	 = wsc.SequenceVectorIndividual
+pop.subpop.0.species.fitness = ec.simple.SimpleFitness
+
+# The global mutation probability must be set, so we set it to 0
+pop.subpop.0.species.mutation-prob	= 0.0
+
+eval.problem            = wsc.WSCProblem
+init                    = wsc.WSCInitializer
+stat                    = wsc.WSCStatistics
+stat.do-time            = true
+stat.0.do-time          = true
+stat.child.0.do-time    = true
+
+pop.subpop.0.species.pipe                      = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.num-sources          = 2
+pop.subpop.0.species.pipe.source.0             = wsc.WSCCrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob        = 0.95
+pop.subpop.0.species.pipe.source.0.num-sources = 2
+pop.subpop.0.species.pipe.source.1             = wsc.WSCMutationPipeline
+pop.subpop.0.species.pipe.source.1.prob        = 0.05
+pop.subpop.0.species.pipe.source.1.num-sources = 1
+pop.subpop.0.species.pipe.source.0.source.0	   = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1	   = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.1.source.0	   = ec.select.TournamentSelection
+breed.elite.0                                  = 2
+select.tournament.size                         = 2
