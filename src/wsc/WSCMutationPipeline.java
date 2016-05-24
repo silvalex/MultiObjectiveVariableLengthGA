@@ -43,19 +43,16 @@ public class WSCMutationPipeline extends BreedingPipeline {
         // Perform mutation
         for(int q=start;q<n+start;q++) {
         	SequenceVectorIndividual ind = (SequenceVectorIndividual)inds[q];
-        	
+
         	LinkedList<Service> extras = new LinkedList<Service>(init.relevant);
         	Collections.shuffle(extras, init.random);
-        	
-        	int NUM_MUTATION = 3;
-        	int count = 0;
-        	
-        	while(count != NUM_MUTATION && !extras.isEmpty()) {
-        		Service next = extras.poll();
-        		if (!ind.genome.contains(next))
-        			ind.genome.add(0, next);
-        	}
 
+        	int count = 0;
+        	while(count != WSCInitializer.numMutations && !extras.isEmpty()) {
+        		Service next = extras.poll();
+        		ind.genome.add(0, next);
+        	}
+        	ind.genome.addAll(extras);
             ind.evaluated=false;
         }
         return n;

@@ -64,18 +64,22 @@ public class WSCCrossoverPipeline extends BreedingPipeline {
     		// Select a random index number for each cut
     		int index1 = init.random.nextInt(t1.genome.size());
     		int index2 = init.random.nextInt(t2.genome.size());
-    		
+
     		// Cut the genomes
     		List<Service> genome1prefix = t1.genome.subList(0, index1);
+    		List<Service> genome1suffix = t1.genome.subList(index1, t1.genome.size());
     		List<Service> genome2prefix = t2.genome.subList(0, index2);
-    		
+    		List<Service> genome2suffix = t2.genome.subList(index2, t2.genome.size());
+
     		// Create new genomes, by appending other candidate's prefix
-    		List<Service> newGenome1 = new ArrayList<Service>(); 
+    		List<Service> newGenome1 = new ArrayList<Service>();
     		newGenome1.addAll(genome2prefix);
     		newGenome1.addAll(t1.genome);
+    		newGenome1.addAll(genome2suffix);
     		List<Service> newGenome2 = new ArrayList<Service>();
     		newGenome2.addAll(genome1prefix);
     		newGenome2.addAll(t2.genome);
+    		newGenome2.addAll(genome1suffix);
 
     		// Replace the old genomes with the new ones
     		t1.genome = newGenome1;

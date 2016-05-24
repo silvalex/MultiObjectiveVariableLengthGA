@@ -61,6 +61,7 @@ public class WSCInitializer extends SimpleInitializer {
 	public double w3;
 	public double w4;
 	public static boolean dynamicNormalisation;
+	public static int numMutations;
 
 	public static double[] meanAvailPerGen;
 	public static double[] meanReliaPerGen;
@@ -104,12 +105,14 @@ public class WSCInitializer extends SimpleInitializer {
 		Parameter evaluationsLogNameParam = new Parameter("stat.evaluations");
 		Parameter evalSampleRateParam = new Parameter("stat.eval-sample-rate");
 		Parameter dynamicNormalisationParam = new Parameter("dynamic-normalisation");
+		Parameter numMutationsParam = new Parameter("num-mutations");
 
 		w1 = state.parameters.getDouble(weight1Param, null);
 		w2 = state.parameters.getDouble(weight2Param, null);
 		w3 = state.parameters.getDouble(weight3Param, null);
 		w4 = state.parameters.getDouble(weight4Param, null);
 		dynamicNormalisation = state.parameters.getBoolean(dynamicNormalisationParam, null, false);
+		numMutations = state.parameters.getInt(numMutationsParam, null);
 
 		int numGens = state.parameters.getInt(new Parameter("generations"), null);
 		meanAvailPerGen = new double[numGens];
@@ -163,6 +166,24 @@ public class WSCInitializer extends SimpleInitializer {
 			if (!isIntersection( searchSet, subsumed )) {
 				satisfied = false;
 				break;
+			}
+		}
+		return satisfied;
+	}
+
+	/**
+	 * Returns the set of inputs that can be satisfied by the search set.
+	 *
+	 * @param inputs
+	 * @param searchSet
+	 * @return inputs subsumed.
+	 */
+	public Set<String> getInputsSubsumed(Set<String> inputs, Set<String> searchSet) {
+		Set<String> satisfied = new HashSet<String>();
+		for (String input : inputs) {
+			Set<String> subsumed = taxonomyMap.get(input).getSubsumedConcepts();
+			if (isIntersection(searchSet,subsumed)) {
+				satisfied.add(input);
 			}
 		}
 		return satisfied;
