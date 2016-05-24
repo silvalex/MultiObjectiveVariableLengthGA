@@ -55,6 +55,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         	Collections.shuffle(successors, init.random);
 
         	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	neighbour.genome = new ArrayList<Service>();
 
         	for (Service s : ind.genome) {
         		neighbour.genome.clear();
@@ -66,7 +67,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         		neighbour.genome.addAll(successors);
 
         		// Calculate fitness, and update the best neighbour if necessary
-        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
+        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true, true);
     			if (neighbour.fitness.fitness() > bestFitness) {
     				bestFitness = neighbour.fitness.fitness();
     				bestNeighbour = new ArrayList<Service>(neighbour.genome);

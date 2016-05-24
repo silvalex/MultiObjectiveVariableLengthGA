@@ -60,6 +60,7 @@ public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
         	int chosen = init.random.nextInt(extraStart);
         	
         	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	neighbour.genome = new ArrayList<Service>();
         	neighbour.genome.addAll(ind.genome);
         	neighbour.genome.addAll(extras);
 
@@ -68,12 +69,12 @@ public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
         		Collections.swap(neighbour.genome, chosen, i);
         		
         		// Calculate fitness, and update the best neighbour if necessary
-        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
+        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true, false);
     			if (ind.fitness.fitness() > bestFitness) {
     				bestFitness = ind.fitness.fitness();
     				bestNeighbour = new ArrayList<Service>(neighbour.genome);
     			}
-    			// Swap back
+    			// Swap back (on the original sequence)
     			Collections.swap(neighbour.genome, chosen, i);
         	}
         	

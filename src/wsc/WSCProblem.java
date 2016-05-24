@@ -21,7 +21,7 @@ public class WSCProblem extends Problem implements SimpleProblemForm {
 		if (!(ind2.fitness instanceof SimpleFitness)) state.output.fatal("Whoa!  It's not a SimpleFitness!!!", null);
 
 
-		ind2.calculateSequenceFitness(init.numLayers, init.endServ, init, state, false);
+		ind2.calculateSequenceFitness(init.numLayers, init.endServ, init, state, false, true);
 
 	}
 

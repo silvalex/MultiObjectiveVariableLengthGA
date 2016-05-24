@@ -30,6 +30,10 @@ public class SequenceVectorIndividual extends VectorIndividual {
 		return new Parameter("sequencevectorindividual");
 	}
 	
+	public SequenceVectorIndividual() {
+		fitness = new SimpleFitness();
+	}
+	
 	@Override
 	/**
 	 * Initializes the individual.
@@ -188,7 +192,7 @@ public class SequenceVectorIndividual extends VectorIndividual {
 	    return satisfied;
 	}
 
-	   public void calculateSequenceFitness(int numLayers, Service end, WSCInitializer init, EvolutionState state, boolean isOperation) {
+	   public void calculateSequenceFitness(int numLayers, Service end, WSCInitializer init, EvolutionState state, boolean isOperation, boolean performFiltering) {
 		   	Set<Service> solution = new HashSet<Service>();
 		   	List<Service> filteredGenome = new ArrayList<Service>();
 		   	int length = genome.size();
@@ -255,7 +259,8 @@ public class SequenceVectorIndividual extends VectorIndividual {
 	        time = findHighestTime(nextInputsToSatisfy);
 	        
 	        // Replace the genome with the filtered one
-	        genome = filteredGenome;
+	        if (performFiltering)
+	        	genome = filteredGenome;
 	        
 	        if (!WSCInitializer.dynamicNormalisation || isOperation)
 	        	finishCalculatingSequenceFitness(init, state);
