@@ -54,73 +54,33 @@ public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
 
         	List<Service> extras = new ArrayList<Service>(init.relevant);
         	Collections.shuffle(extras, init.random);
-
-        	List<Service> neighbour = new ArrayList<Service>();
         	
         	int extraStart = ind.genome.size();
         	int extraLength = extras.size();
         	int chosen = init.random.nextInt(extraStart);
+        	
+        	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	neighbour.genome.addAll(ind.genome);
+        	neighbour.genome.addAll(extras);
 
         	for (int i = extraStart; i < extraStart + extraLength; i++) {
-        		neighbour.clear();
+        		// Perform swap
+        		Collections.swap(neighbour.genome, chosen, i);
         		
-        		Collections.swap(neighbour, 0, 1); // XXX
-
-        		Set<Service> predecessors = findPredecessors(init, s);
-        		neighbour.addAll(0, predecessors);
-        		Collections.shuffle(neighbour, init.random);
-        		neighbour.addAll(ind.genome);
-        		neighbour.addAll(extras);
-
         		// Calculate fitness, and update the best neighbour if necessary
-        		ind.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
+        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
     			if (ind.fitness.fitness() > bestFitness) {
     				bestFitness = ind.fitness.fitness();
-    				bestNeighbour = new ArrayList<Service>(neighbour);
+    				bestNeighbour = new ArrayList<Service>(neighbour.genome);
     			}
-
+    			// Swap back
+    			Collections.swap(neighbour.genome, chosen, i);
         	}
+        	
             // Update the tree to contain the best genome found
         	ind.genome = bestNeighbour;
             ind.evaluated = false;
         }
         return n;
-	}
-
-	public Set<Service> findPredecessors(WSCInitializer init, Service s) {
-		Set<Service> predecessors = new HashSet<Service>();
-
-		// Get only inputs that are not subsumed by the given composition inputs (i.e. the start node)
-		Set<String> inputsNotSatisfied = init.getInputsNotSubsumed(s.getInputs(), init.startServ.outputs);
-		Set<String> inputsToSatisfy = new HashSet<String>(inputsNotSatisfied);
-
-		// If start node is one of the predecessors, add it to set
-		if (inputsToSatisfy.size() < s.getInputs().size())
-			predecessors.add(init.startServ);
-
-		// Randomly find services to satisfy all remaining inputs
-		for (String i : inputsNotSatisfied) {
-			if (inputsToSatisfy.contains(i)) {
-				List<Service> candidates = init.taxonomyMap.get(i).servicesWithOutput;
-				Collections.shuffle(candidates, init.random);
-
-				Service chosen = null;
-				candLoop:
-				for(Service cand : candidates) {
-					if (init.relevant.contains(cand) && cand.layer < s.layer) {
-						predecessors.add(cand);
-						chosen = cand;
-						break candLoop;
-					}
-				}
-
-				inputsToSatisfy.remove(i);
-
-				// Check if other outputs can also be fulfilled by the chosen candidate, and remove them also
-				Set<String> subsumed = init.getInputsSubsumed(inputsToSatisfy, chosen.outputs);
-				inputsToSatisfy.removeAll(subsumed);
-			}
-		}
-		return predecessors;
 	}
 }
