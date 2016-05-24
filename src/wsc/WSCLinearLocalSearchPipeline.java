@@ -3,6 +3,7 @@ package wsc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,13 +13,13 @@ import ec.Individual;
 import ec.simple.SimpleFitness;
 import ec.util.Parameter;
 
-public class WSCLocalSearchPipeline extends BreedingPipeline {
+public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public Parameter defaultBase() {
-		return new Parameter("wsclocalsearchpipeline");
+		return new Parameter("wsclinearlocalsearchpipeline");
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 
         if (!(inds[start] instanceof SequenceVectorIndividual))
             // uh oh, wrong kind of individual
-            state.output.fatal("WSCLocalSearchPipeline didn't get a SequenceVectorIndividual. The offending individual is in subpopulation "
+            state.output.fatal("WSCLinearLocalSearchPipeline didn't get a SequenceVectorIndividual. The offending individual is in subpopulation "
             + subpopulation + " and it's:" + inds[start]);
 
         WSCInitializer init = (WSCInitializer) state.initializer;
@@ -51,25 +52,31 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         	double bestFitness = ind.fitness.fitness();
         	List<Service> bestNeighbour = ind.genome;
 
-        	List<Service> successors = new ArrayList<Service>(init.relevant);
-        	Collections.shuffle(successors, init.random);
+        	List<Service> extras = new ArrayList<Service>(init.relevant);
+        	Collections.shuffle(extras, init.random);
 
-        	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	List<Service> neighbour = new ArrayList<Service>();
+        	
+        	int extraStart = ind.genome.size();
+        	int extraLength = extras.size();
+        	int chosen = init.random.nextInt(extraStart);
 
-        	for (Service s : ind.genome) {
-        		neighbour.genome.clear();
+        	for (int i = extraStart; i < extraStart + extraLength; i++) {
+        		neighbour.clear();
+        		
+        		Collections.swap(neighbour, 0, 1); // XXX
 
         		Set<Service> predecessors = findPredecessors(init, s);
-        		neighbour.genome.addAll(0, predecessors);
-        		Collections.shuffle(neighbour.genome, init.random);
-        		neighbour.genome.addAll(ind.genome);
-        		neighbour.genome.addAll(successors);
+        		neighbour.addAll(0, predecessors);
+        		Collections.shuffle(neighbour, init.random);
+        		neighbour.addAll(ind.genome);
+        		neighbour.addAll(extras);
 
         		// Calculate fitness, and update the best neighbour if necessary
-        		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
-    			if (neighbour.fitness.fitness() > bestFitness) {
-    				bestFitness = neighbour.fitness.fitness();
-    				bestNeighbour = new ArrayList<Service>(neighbour.genome);
+        		ind.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true);
+    			if (ind.fitness.fitness() > bestFitness) {
+    				bestFitness = ind.fitness.fitness();
+    				bestNeighbour = new ArrayList<Service>(neighbour);
     			}
 
         	}
