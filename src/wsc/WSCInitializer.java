@@ -348,7 +348,7 @@ public class WSCInitializer extends SimpleInitializer {
 			sFound.clear();
 			sFound = discoverService(services, cSearch);
 		}
-
+		endServ.layer = layer++;
 		numLayers = layer;
 
 		if (isSubsumed(outputs, cSearch)) {
