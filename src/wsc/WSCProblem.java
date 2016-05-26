@@ -1,5 +1,7 @@
 package wsc;
 
+import java.util.Collections;
+
 import ec.*;
 import ec.simple.*;
 
@@ -28,6 +30,10 @@ public class WSCProblem extends Problem implements SimpleProblemForm {
 	@Override
 	public void finishEvaluating(EvolutionState state, int threadnum) {
 		WSCInitializer init = (WSCInitializer) state.initializer;
+
+		// Update the overall local search list
+		Collections.sort(init.localSearchList);
+
 
 		// Get population
 		Subpopulation pop = state.population.subpops[0];

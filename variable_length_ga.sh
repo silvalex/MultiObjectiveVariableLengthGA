@@ -23,7 +23,7 @@ DIR_TMP="/local/tmp/sawczualex/$JOB_ID/"
 DIR_HOME="/u/students/sawczualex/"
 DIR_GRID=$DIR_HOME"grid/"
 DIR_WORKSPACE="workspace/"
-DIR_PROGRAM=$DIR_HOME$DIR_WORKSPACE/"IndirectSequence/"
+DIR_PROGRAM=$DIR_HOME$DIR_WORKSPACE/"VariableLengthGA/"
 ECJ_JAR=$DIR_HOME$DIR_WORKSPACE/"Library/ecj.23.jar"
 DIR_OUTPUT=$DIR_GRID$2 # Match this argument with dataset name
 
@@ -50,7 +50,7 @@ echo $JOB_ID >> $DIR_GRID$FILE_JOB_LIST
 
 # Copy the files required for processing into the temporary directory.
 cp -r $DIR_PROGRAM"bin" $DIR_TMP
-cp $DIR_PROGRAM"indirect-sequence.params" $DIR_TMP
+cp $DIR_PROGRAM"variable-length-ga.params" $DIR_TMP
 cp $DIR_PROGRAM"simple.params" $DIR_TMP
 cp $DIR_PROGRAM"ec.params" $DIR_TMP
 cp $ECJ_JAR $DIR_TMP

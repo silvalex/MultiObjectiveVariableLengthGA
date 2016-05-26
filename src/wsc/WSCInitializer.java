@@ -39,7 +39,6 @@ public class WSCInitializer extends SimpleInitializer {
 	public Map<String, Service> serviceMap = new HashMap<String, Service>();
 	public Map<String, Integer> serviceToIndexMap = new HashMap<String, Integer>();
 	public Set<Service> relevant;
-	public List<Service> relevantList;
 	public Map<String, TaxonomyNode> taxonomyMap = new HashMap<String, TaxonomyNode>();
 	public Set<String> taskInput;
 	public Set<String> taskOutput;
@@ -47,6 +46,7 @@ public class WSCInitializer extends SimpleInitializer {
 	public Service endServ;
 	public WSCRandom random;
 	public int numLayers;
+	public List<Service> localSearchList;
 
 	public double minAvailability = 0.0;
 	public double maxAvailability = -1.0;
@@ -139,7 +139,7 @@ public class WSCInitializer extends SimpleInitializer {
 
 		populateTaxonomyTree();
 		relevant = getRelevantServices(serviceMap, taskInput, taskOutput);
-		relevantList = new ArrayList<Service>(relevant);
+		localSearchList = new ArrayList<Service>(relevant);
 		if (!dynamicNormalisation) {
 			calculateNormalisationBounds(relevant);
 			//calculateNormalisationBounds(new HashSet<Service>(serviceMap.values())); // XXX
@@ -337,8 +337,9 @@ public class WSCInitializer extends SimpleInitializer {
 		while (!sFound.isEmpty()) {
 			sSet.addAll(sFound);
 			// Record the layer that the services belong to in each node
-			for (Service s : sFound)
+			for (Service s : sFound) {
 				s.layer = layer;
+			}
 
 			layer++;
 			services.removeAll(sFound);

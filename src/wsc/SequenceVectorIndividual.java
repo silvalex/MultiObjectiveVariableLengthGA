@@ -29,18 +29,18 @@ public class SequenceVectorIndividual extends VectorIndividual {
 	public Parameter defaultBase() {
 		return new Parameter("sequencevectorindividual");
 	}
-	
+
 	public SequenceVectorIndividual() {
 		fitness = new SimpleFitness();
 	}
-	
+
 	@Override
 	/**
 	 * Initializes the individual.
 	 */
 	public void reset(EvolutionState state, int thread) {
 		WSCInitializer init = (WSCInitializer) state.initializer;
-		genome = new ArrayList<Service>(init.relevantList);
+		genome = new ArrayList<Service>(init.relevant);
 		Collections.shuffle(genome, init.random);
 		this.evaluated = false;
 	}
@@ -52,7 +52,7 @@ public class SequenceVectorIndividual extends VectorIndividual {
 		if (ind != null && ind instanceof SequenceVectorIndividual) {
 			result = true;
 			SequenceVectorIndividual other = (SequenceVectorIndividual) ind;
-			
+
 			if (genome.size() == other.genome.size()) {
 				for (int i = 0; i < genome.size(); i++) {
 					if (!genome.get(i).equals(other.genome.get(i))) {
@@ -257,11 +257,19 @@ public class SequenceVectorIndividual extends VectorIndividual {
 
 	        // Find the highest overall time
 	        time = findHighestTime(nextInputsToSatisfy);
-	        
+
 	        // Replace the genome with the filtered one
-	        if (performFiltering)
+	        if (performFiltering) {
 	        	genome = filteredGenome;
-	        
+
+		        // Update service count
+		        if (!isOperation) {
+		        	for (Service s: filteredGenome) {
+		        		s.count++;
+		        	}
+		        }
+	        }
+
 	        if (!WSCInitializer.dynamicNormalisation || isOperation)
 	        	finishCalculatingSequenceFitness(init, state);
 	    }

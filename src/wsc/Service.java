@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Service {
+public class Service implements Comparable<Service> {
 	public List<TaxonomyNode> taxonomyOutputs = new ArrayList<TaxonomyNode>();
 	public String name;
 	public double[] qos;
 	public Set<String> inputs;
 	public Set<String> outputs;
 	public int layer;
+	public int count = 0;
 
 	public Service(String name, double[] qos, Set<String> inputs, Set<String> outputs) {
 		this.name = name;
@@ -53,9 +54,19 @@ public class Service {
 		else
 			return false;
 	}
-	
+
 	@Override
 	public String toString() {
 	    return name;
+	}
+
+	@Override
+	public int compareTo(Service o) {
+		if (count > o.count)
+			return -1;
+		else if (count < o.count)
+			return 1;
+		else
+			return 0;
 	}
 }

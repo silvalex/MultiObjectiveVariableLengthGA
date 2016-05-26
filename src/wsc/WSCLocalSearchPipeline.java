@@ -3,13 +3,13 @@ package wsc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import ec.BreedingPipeline;
 import ec.EvolutionState;
 import ec.Individual;
-import ec.simple.SimpleFitness;
 import ec.util.Parameter;
 
 public class WSCLocalSearchPipeline extends BreedingPipeline {
@@ -50,7 +50,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 
         	double bestFitness = ind.fitness.fitness();
         	List<Service> bestNeighbour = ind.genome;
-        	
+
         	List<Service> servicesToConsider = new ArrayList<Service>(ind.genome);
         	servicesToConsider.add(init.endServ);
 
@@ -63,9 +63,14 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         	for (Service s : servicesToConsider) {
         		neighbour.genome.clear();
 
-        		Set<Service> predecessors = findPredecessors(init, s);
-        		neighbour.genome.addAll(0, predecessors);
-        		Collections.shuffle(neighbour.genome, init.random);
+        		LinkedList<Service> predecessors = new LinkedList<Service>(findPredecessors(init, s));
+        		Collections.shuffle(predecessors, init.random);
+
+        		int count = 0;
+            	while(count != WSCInitializer.numMutations && !predecessors.isEmpty()) {
+            		Service next = predecessors.poll();
+            		ind.genome.add(0, next);
+            	}
         		neighbour.genome.addAll(ind.genome);
         		neighbour.genome.addAll(successors);
 
