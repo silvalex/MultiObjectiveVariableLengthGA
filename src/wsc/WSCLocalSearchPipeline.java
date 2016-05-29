@@ -70,7 +70,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
             	while(count != WSCInitializer.numMutations && !predecessors.isEmpty()) {
             		Service next = predecessors.poll();
             		ind.genome.add(0, next);
-            		count++; //XXX
+            		count++;
             	}
         		neighbour.genome.addAll(ind.genome);
         		neighbour.genome.addAll(successors);
