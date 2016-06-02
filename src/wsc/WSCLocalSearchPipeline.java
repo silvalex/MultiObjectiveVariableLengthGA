@@ -68,9 +68,11 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 
         		int count = 0;
             	while(count != WSCInitializer.numMutations && !predecessors.isEmpty()) {
+
             		Service next = predecessors.poll();
-            		ind.genome.add(0, next);
-            		count++;
+        			neighbour.genome.add(0, next);
+        			count++;
+
             	}
         		neighbour.genome.addAll(ind.genome);
         		neighbour.genome.addAll(successors);
@@ -81,7 +83,6 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
     				bestFitness = neighbour.fitness.fitness();
     				bestNeighbour = new ArrayList<Service>(neighbour.genome);
     			}
-
         	}
             // Update the tree to contain the best genome found
         	ind.genome = bestNeighbour;
@@ -91,6 +92,7 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 	}
 
 	public Set<Service> findPredecessors(WSCInitializer init, Service s) {
+
 		Set<Service> predecessors = new HashSet<Service>();
 
 		// Get only inputs that are not subsumed by the given composition inputs (i.e. the start node)
@@ -98,8 +100,8 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 		Set<String> inputsToSatisfy = new HashSet<String>(inputsNotSatisfied);
 
 		// If start node is one of the predecessors, add it to set
-		if (inputsToSatisfy.size() < s.getInputs().size())
-			predecessors.add(init.startServ);
+		//if (inputsToSatisfy.size() < s.getInputs().size())
+		//	predecessors.add(init.startServ);
 
 		// Randomly find services to satisfy all remaining inputs
 		for (String i : inputsNotSatisfied) {
