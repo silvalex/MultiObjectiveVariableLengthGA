@@ -9,7 +9,9 @@ import java.util.Set;
 
 import ec.BreedingPipeline;
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.Individual;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.simple.SimpleFitness;
 import ec.util.Parameter;
 
@@ -49,17 +51,19 @@ public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
         for(int q=start;q<n+start;q++) {
         	SequenceVectorIndividual ind = (SequenceVectorIndividual)inds[q];
 
-        	double bestFitness = ind.fitness.fitness();
+        	MultiObjectiveFitness bestFitness = (MultiObjectiveFitness) ind.fitness.clone();
         	List<Service> bestNeighbour = ind.genome;
 
         	List<Service> extras = new ArrayList<Service>(init.relevant);
         	Collections.shuffle(extras, init.random);
-        	
+
         	int extraStart = ind.genome.size();
         	int extraLength = extras.size();
         	int chosen = init.random.nextInt(extraStart);
-        	
+
         	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	neighbour.species = ind.species;
+        	neighbour.fitness = (Fitness) neighbour.species.f_prototype.clone();
         	neighbour.genome = new ArrayList<Service>();
         	neighbour.genome.addAll(ind.genome);
         	neighbour.genome.addAll(extras);
@@ -67,17 +71,17 @@ public class WSCLinearLocalSearchPipeline extends BreedingPipeline {
         	for (int i = extraStart; i < extraStart + extraLength; i++) {
         		// Perform swap
         		Collections.swap(neighbour.genome, chosen, i);
-        		
+
         		// Calculate fitness, and update the best neighbour if necessary
         		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true, false);
-    			if (ind.fitness.fitness() > bestFitness) {
-    				bestFitness = ind.fitness.fitness();
+    			if (((MultiObjectiveFitness)neighbour.fitness).betterThan(bestFitness)) {
+    				bestFitness = (MultiObjectiveFitness) ind.fitness;
     				bestNeighbour = new ArrayList<Service>(neighbour.genome);
     			}
     			// Swap back (on the original sequence)
     			Collections.swap(neighbour.genome, chosen, i);
         	}
-        	
+
             // Update the tree to contain the best genome found
         	ind.genome = bestNeighbour;
             ind.evaluated = false;

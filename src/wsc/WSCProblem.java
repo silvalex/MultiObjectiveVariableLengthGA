@@ -20,7 +20,7 @@ public class WSCProblem extends Problem implements SimpleProblemForm {
 		SequenceVectorIndividual ind2 = (SequenceVectorIndividual) ind;
 		WSCInitializer init = (WSCInitializer) state.initializer;
 
-		if (!(ind2.fitness instanceof SimpleFitness)) state.output.fatal("Whoa!  It's not a SimpleFitness!!!", null);
+		//if (!(ind2.fitness instanceof NSGA2MultiObjectiveFitness)) state.output.fatal("Whoa!  It's not a NSGA2MultiObjectiveFitness!!!", null);
 
 
 		ind2.calculateSequenceFitness(init.numLayers, init.endServ, init, state, false, true);

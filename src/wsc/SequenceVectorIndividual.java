@@ -11,7 +11,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import ec.EvolutionState;
-import ec.simple.SimpleFitness;
+import ec.Fitness;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
 import ec.vector.VectorIndividual;
 
@@ -23,16 +24,16 @@ public class SequenceVectorIndividual extends VectorIndividual {
 	private double reliability;
 	private double time;
 	private double cost;
-	public List<Service> genome;
+	public List<Service> genome = new ArrayList<Service>();
 
 	@Override
 	public Parameter defaultBase() {
 		return new Parameter("sequencevectorindividual");
 	}
 
-	public SequenceVectorIndividual() {
-		fitness = new SimpleFitness();
-	}
+//	public SequenceVectorIndividual() {
+//		fitness = new MultiObjectiveFitness();
+//	}
 
 	@Override
 	/**
@@ -66,6 +67,18 @@ public class SequenceVectorIndividual extends VectorIndividual {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public SequenceVectorIndividual clone() {
+    	SequenceVectorIndividual g = new SequenceVectorIndividual();
+    	g.species = this.species;
+    	if (this.fitness == null)
+    		g.fitness = (Fitness) g.species.f_prototype.clone();
+    	else
+    		g.fitness = (Fitness) this.fitness.clone();
+    	g.genome.addAll(genome);
+    	return g;
 	}
 
 	@Override
@@ -275,10 +288,10 @@ public class SequenceVectorIndividual extends VectorIndividual {
 	    }
 
 	   public void finishCalculatingSequenceFitness(WSCInitializer init, EvolutionState state) {
-		   double f = calculateFitness(cost, time, availability, reliability, init);
-			init.trackFitnessPerEvaluations(f);
+		   double[] objectives = calculateFitness(cost, time, availability, reliability, init);
+			//init.trackFitnessPerEvaluations(f);
 
-			((SimpleFitness) fitness).setFitness(state, f, false);
+			((MultiObjectiveFitness) fitness).setObjectives(state, objectives);
 			evaluated = true;
 	   }
 
@@ -293,41 +306,53 @@ public class SequenceVectorIndividual extends VectorIndividual {
 		    return max;
 		}
 
-		public double calculateFitness(double c, double t, double a, double r, WSCInitializer init) {
+		public double[] calculateFitness(double c, double t, double a, double r, WSCInitializer init) {
 	        a = normaliseAvailability(a, init);
 	        r = normaliseReliability(r, init);
 	        t = normaliseTime(t, init);
 	        c = normaliseCost(c, init);
 
-	        return (init.w1 * a + init.w2 * r + init.w3 * t + init.w4 * c);
+	        double[] objectives = new double[2];
+	        //objectives[GraphInitializer.AVAILABILITY] = a;
+	        //objectives[GraphInitializer.RELIABILITY] = r;
+	        //objectives[WSCInitializer.TIME] = t;
+	        //objectives[WSCInitializer.COST] = c;
+	        objectives[0] = t + c;
+	        objectives[1] = a + r;
+
+	        return objectives;
 		}
 
 		private double normaliseAvailability(double availability, WSCInitializer init) {
 			if (init.maxAvailability - init.minAvailability == 0.0)
 				return 1.0;
 			else
-				return (availability - init.minAvailability)/(init.maxAvailability - init.minAvailability);
+				//return (availability - init.minAvailability)/(init.maxAvailability - init.minAvailability);
+				return (init.maxAvailability - availability)/(init.maxAvailability - init.minAvailability);
 		}
 
 		private double normaliseReliability(double reliability, WSCInitializer init) {
 			if (init.maxReliability- init.minReliability == 0.0)
 				return 1.0;
 			else
-				return (reliability - init.minReliability)/(init.maxReliability - init.minReliability);
+				//return (reliability - init.minReliability)/(init.maxReliability - init.minReliability);
+				return (init.maxReliability - reliability)/(init.maxReliability - init.minReliability);
 		}
 
 		private double normaliseTime(double time, WSCInitializer init) {
 			if (init.maxTime - init.minTime == 0.0)
 				return 1.0;
 			else
-				return (init.maxTime - time)/(init.maxTime - init.minTime);
+				//return (init.maxTime - time)/(init.maxTime - init.minTime);
+				return (time - init.minTime)/(init.maxTime - init.minTime);
 		}
 
 		private double normaliseCost(double cost, WSCInitializer init) {
 			if (init.maxCost - init.minCost == 0.0)
 				return 1.0;
 			else
-				return (init.maxCost - cost)/(init.maxCost - init.minCost);
+				//return (init.maxCost - cost)/(init.maxCost - init.minCost);
+				return (cost - init.minCost)/(init.maxCost - init.minCost);
 		}
 
 		public List<InputTimeLayerTrio> getInputsSatisfied(List<InputTimeLayerTrio> inputsToSatisfy, Service n, WSCInitializer init) {

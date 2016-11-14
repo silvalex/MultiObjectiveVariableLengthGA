@@ -23,6 +23,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import ec.EvolutionState;
+import ec.Population;
+import ec.Subpopulation;
 import ec.simple.SimpleInitializer;
 import ec.util.Parameter;
 import wsc.WSCRandom;
@@ -94,6 +96,9 @@ public class WSCInitializer extends SimpleInitializer {
 		long startTime = System.currentTimeMillis();
 		random = new WSCRandom(state.random[0]);
 		super.setup(state,base);
+
+		state.population = new Population();
+		state.population.subpops = new Subpopulation[0];
 
 		Parameter servicesParam = new Parameter("composition-services");
 		Parameter taskParam = new Parameter("composition-task");

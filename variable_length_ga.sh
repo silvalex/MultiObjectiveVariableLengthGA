@@ -21,15 +21,17 @@
 
 DIR_TMP="/local/tmp/sawczualex/$JOB_ID/"
 DIR_HOME="/u/students/sawczualex/"
-DIR_GRID=$DIR_HOME"grid/"
+#DIR_GRID=$DIR_HOME"grid/"
+DIR_GRID="/vol/grid-solar/sgeusers/sawczualex/"
 DIR_WORKSPACE="workspace/"
-DIR_PROGRAM=$DIR_HOME$DIR_WORKSPACE/"VariableLengthGA/"
+DIR_PROGRAM=$DIR_HOME$DIR_WORKSPACE/"MultiObjectiveVariableLengthGA/"
 ECJ_JAR=$DIR_HOME$DIR_WORKSPACE/"Library/ecj.23.jar"
 DIR_OUTPUT=$DIR_GRID$2 # Match this argument with dataset name
 
 FILE_JOB_LIST="CURRENT_JOBS.txt"
 FILE_RESULT_PREFIX="out"
 ANALYSIS_PREFIX="eval"
+FILE_FRONT_PREFIX="front"
 
 
 mkdir -p $DIR_TMP
@@ -50,7 +52,7 @@ echo $JOB_ID >> $DIR_GRID$FILE_JOB_LIST
 
 # Copy the files required for processing into the temporary directory.
 cp -r $DIR_PROGRAM"bin" $DIR_TMP
-cp $DIR_PROGRAM"variable-length-ga.params" $DIR_TMP
+cp $DIR_PROGRAM"nsga2-variable-length-ga.params" $DIR_TMP
 cp $DIR_PROGRAM"simple.params" $DIR_TMP
 cp $DIR_PROGRAM"ec.params" $DIR_TMP
 cp $ECJ_JAR $DIR_TMP
@@ -65,10 +67,12 @@ echo "Running: "
 seed=$SGE_TASK_ID
 result=$FILE_RESULT_PREFIX$seed.stat
 analysis=$ANALYSIS_PREFIX$seed.stat
+front=$FILE_FRONT_PREFIX$seed.stat
 
-java -cp ecj.23.jar:./bin:. ec.Evolve -file $3 -p seed.0=$seed -p stat.file=\$$result -p stat.evaluations=\$$analysis
+java -cp ecj.23.jar:./bin:. ec.Evolve -file $3 -p seed.0=$seed -p stat.file=\$$result -p stat.evaluations=\$$analysis -p stat.front=\$$front
 cp $result ./results
 cp $analysis ./results
+cp $front ./results
 
 # Now we move the output to a place to pick it up from later and clean up
 cd results

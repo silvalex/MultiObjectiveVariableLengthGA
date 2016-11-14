@@ -9,7 +9,9 @@ import java.util.Set;
 
 import ec.BreedingPipeline;
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.Individual;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
 
 public class WSCLocalSearchPipeline extends BreedingPipeline {
@@ -48,8 +50,29 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         for(int q=start;q<n+start;q++) {
         	SequenceVectorIndividual ind = (SequenceVectorIndividual)inds[q];
 
-        	double bestFitness = ind.fitness.fitness();
+        	MultiObjectiveFitness bestFitness = (MultiObjectiveFitness) ind.fitness;
         	List<Service> bestNeighbour = ind.genome;
+
+        	// Calculate a single score value dynamically, using weights that reflect the the importance of
+        	//each objective (we are trying to push the good objective to keep on improving as much as possible).
+        	double[] weights = new double[bestFitness.getNumObjectives()];
+
+        	// Determine total to use in weight calculations
+        	double total = 0.0;
+        	for (double objective : bestFitness.getObjectives()) {
+        		total += objective;
+        	}
+
+        	// Calculate weights
+        	for (int i = 0; i < bestFitness.getNumObjectives(); i++) {
+        		weights[i] = bestFitness.getObjective(i)/total;
+        	}
+
+        	// Now calculate initial best score
+        	double bestScore = 0.0;
+        	for (int i = 0; i < bestFitness.getNumObjectives(); i++) {
+        		bestScore += (weights[i] * bestFitness.getObjective(i));
+        	}
 
         	List<Service> servicesToConsider = new ArrayList<Service>(ind.genome);
         	servicesToConsider.add(init.endServ);
@@ -58,7 +81,10 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
         	Collections.shuffle(successors, init.random);
 
         	SequenceVectorIndividual neighbour = new SequenceVectorIndividual();
+        	neighbour.species = ind.species;
+        	neighbour.fitness = (Fitness) neighbour.species.f_prototype.clone();
         	neighbour.genome = new ArrayList<Service>();
+        	double score = 0.0;
 
         	for (Service s : servicesToConsider) {
         		neighbour.genome.clear();
@@ -79,9 +105,17 @@ public class WSCLocalSearchPipeline extends BreedingPipeline {
 
         		// Calculate fitness, and update the best neighbour if necessary
         		neighbour.calculateSequenceFitness(init.numLayers, init.endServ, init, state, true, true);
-    			if (neighbour.fitness.fitness() > bestFitness) {
-    				bestFitness = neighbour.fitness.fitness();
+        		MultiObjectiveFitness neighbourFitness = (MultiObjectiveFitness) neighbour.fitness;
+        		// Calculate the single-score value
+        		score = 0.0;
+        		for (int i = 0; i < neighbourFitness.getNumObjectives(); i++) {
+            		score += (weights[i] * neighbourFitness.getObjective(i));
+            	}
+
+    			if (score < bestScore) {
+    				bestFitness = (MultiObjectiveFitness)neighbour.fitness;
     				bestNeighbour = new ArrayList<Service>(neighbour.genome);
+    				bestScore = score;
     			}
         	}
             // Update the tree to contain the best genome found
